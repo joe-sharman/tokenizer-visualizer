@@ -4,6 +4,6 @@ _Tokenizer Visualizer_ is tool to visualise how different language models tokeni
 
 Input any model from [Hugging Face](https://huggingface.co/models), along with some sample text.
 
-![(/../main/images/demo.png?raw=true)
+![](/../main/images/demo.png?raw=true)
 
 This project was created to practice front-end development.
