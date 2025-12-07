@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tokenizer Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="outer-container">
+    <div class="left-box">
+        <span class="prompt">&gt;</span>
+        <textarea class="cmd" id="inputText" spellcheck="false" placeholder="Write some text here..."></textarea>
+    </div>
+
+    <div class="right-box">
+        <div class="output-box box1">
+            <input class="model-name-box" id="model-1" value="openai-community/gpt2">
+            <div class="highlights" id="highlights-1"></div>
+        </div>
+        <div class="output-box box2">
+            <input class="model-name-box" id="model-2" value="roberta-base">
+            <div class="highlights" id="highlights-2"></div>
+        </div>
+        <div class="output-box box3">
+            <input class="model-name-box" id="model-3" value="bert-base-cased">
+            <div class="highlights" id="highlights-3"></div>
+        </div>
+        <div class="output-box box4">
+            <input class="model-name-box" id="model-4" value="t5-small">
+            <div class="highlights" id="highlights-4"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    };
+
+    const fetchTokens = async (text, tokenizerName) => {
+        if (!text || text.length === 0) return [];
+
+        try {
+            const response = await fetch('/api/tokenize', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({"text": text, tokenizerName: tokenizerName})
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Tokenization failed", error);
+            console.log("Text:", text, "Tokenizer:", tokenizerName);
+            return [];
+        }
+    }
+
+    const colourizeTokens = (tokens) => {
+        if (!Array.isArray(tokens)) return "";
+        return tokens.map((token, index) => {
+            return `<span class="token-text-${index % 4}">${token}</span>`;
+        }).join("");
+    }
+
+    const processInput = async (text) => {
+
+        for (let i = 1; i <= 4; i++) {
+            const modelInput = document.getElementById(`model-${i}`);
+            const tokenizerName = modelInput.value || null;
+            console.log(`Tokenizing input for model ${i}:`, text, "with tokenizer:", tokenizerName);
+            let tokens = await fetchTokens(text, tokenizerName);
+            console.log(`Received tokens for model ${i}:`, tokens);
+            document.getElementById(`highlights-${i}`).innerHTML = colourizeTokens(tokens);
+        }
+    };
+
+
+    const debouncedProcess = debounce(processInput, 10);
+
+    // Initial call to process any pre-filled text
+    debouncedProcess(document.getElementById('inputText').value)
+    // Listen for text changes
+    document.getElementById('inputText').addEventListener('input', (e) => {
+        debouncedProcess(e.target.value);
+    });
+
+
+</script>
+
+
+</body>
+</html>
