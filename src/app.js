@@ -67,9 +67,11 @@ function cleanTokens(tokens) {
         return cleanTokensBPE(tokens);
     } else if (tokens.some(token => token.startsWith("▁"))) {
         return cleanTokensSentencePiece(tokens);
-    } else {
-        // Default to BERT-style tokenization, in-case no special markers are found
+    } else if (tokens.some(token => token.startsWith("##"))) {
         return cleanTokensBert(tokens)
+    } else {
+        // Default to BPE-style tokenization, in-case no special markers are found
+        return cleanTokensBPE(tokens);
     }
     ;
 }
@@ -92,6 +94,7 @@ app.post("/api/tokenize", async (req, res) => {
     console.log(`For ${tokenizerName} received text: ${text}`);
     let tokens = tokenizer.tokenize(text);
     console.log(`For ${tokenizerName} received uncleaned tokens: ${tokens}`);
+    console.log(tokens)
     let cleanedTokens = cleanTokens(tokens);
     console.log(`For ${tokenizerName} received cleaned tokens: ${cleanedTokens}`);
     res.send(cleanedTokens);
