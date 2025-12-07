@@ -12,3 +12,5 @@ Tokenizers use different special characters to denote whether a token continues 
 - `▁` (low underscore) used by SentencePiece tokenizers such as T-5 and LLaMa.
 
 This project was created to practice front-end development.
+
+_Originally published on the 7th of December 2025_.
